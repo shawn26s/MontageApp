@@ -18,8 +18,8 @@
 
             <ImageView
                 android:id="@+id/imageArea"
-                android:layout_width="170"
-                android:layout_height="250"
+                android:layout_width="170dp"
+                android:layout_height="250dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@color/colorPrimaryDark"
                 android:padding="10dp" />
@@ -69,7 +69,7 @@
 
                 <Button
                     android:id="@+id/confirmButton"
-                    android:layout_width="150"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="@color/colorAccent"
@@ -81,7 +81,7 @@
 
                 <Button
                     android:id="@+id/backButton"
-                    android:layout_width="150"
+                    android:layout_width="150dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="@color/colorAccent"
