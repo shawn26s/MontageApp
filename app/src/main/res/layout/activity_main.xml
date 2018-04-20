@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="final_project.cs3174.montageapp.MainActivity"
+    android:background="@color/colorPrimaryDark">
+
+    <TableLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <TableRow android:padding="10dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Take Picture"
+                android:textAllCaps="false"
+                android:id="@+id/takePicture"
+                android:textSize="35dp"
+                android:minWidth="275dp"
+                android:textColor="@color/colorPrimaryDark"
+                android:backgroundTint="@color/colorAccent"
+                android:onClick="onTakePicture"
+                />
+        </TableRow>
+        <TableRow android:padding="10dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="View Montage"
+                android:textAllCaps="false"
+                android:id="@+id/viewMontage"
+                android:textSize="35dp"
+                android:minWidth="275dp"
+                android:textColor="@color/colorPrimaryDark"
+                android:backgroundTint="@color/colorAccent"
+                android:onClick="onViewMontage"
+                />
+        </TableRow>
+        <TableRow android:padding="10dp">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Settings"
+                android:textAllCaps="false"
+                android:id="@+id/settings"
+                android:textSize="35dp"
+                android:minWidth="275dp"
+                android:textColor="@color/colorPrimaryDark"
+                android:backgroundTint="@color/colorAccent"
+                android:onClick="onClickSettings"
+                />
+        </TableRow>
+
+    </TableLayout>
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/image"
+        android:layout_gravity="bottom|center_horizontal"/>
+
+</FrameLayout>
