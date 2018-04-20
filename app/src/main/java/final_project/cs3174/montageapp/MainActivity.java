@@ -1,28 +1,37 @@
 package final_project.cs3174.montageapp;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -30,10 +39,13 @@ public class MainActivity extends AppCompatActivity
     Button viewMontage;
     Button settings;
     private Uri imgUri;
-    public static final int REQUEST_IMAGE = 1;
-    public static final String path = "/data/user/0/final_project.cs3174.montageapp/app_imageDir";
     ContextWrapper cw;
     File directory;
+    GPSManager gpsManager;
+    Snapshot currentSnapshot;
+
+    public static final int REQUEST_IMAGE = 1;
+    public static final String PATH = "/data/user/0/final_project.cs3174.montageapp/app_imageDir";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -46,10 +58,28 @@ public class MainActivity extends AppCompatActivity
         settings = findViewById(R.id.settings);
         cw = new ContextWrapper(getApplicationContext());
         directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        gpsManager = new GPSManager(this);
+        currentSnapshot = new Snapshot();
     }
 
+    // Will get the date, location, weather, user's mood, and the photo
+    // and store it into the currentSnapshot object.
     public void onTakePicture(View view)
     {
+        Location loc = gpsManager.getCurrentLocation();
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+        try
+        {
+            addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
+            currentSnapshot.setLocation(addresses.get(0).getAddressLine(0));
+            Log.d("streetAddress", currentSnapshot.getLocation());
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         try
         {
             File storageDir = this.getFilesDir();
@@ -93,10 +123,12 @@ public class MainActivity extends AppCompatActivity
             Log.d("test", "result ok");
             try
             {
-                    // name that will be used to get the picture from memory
-                    String name = Calendar.getInstance().getTimeInMillis() + "";
-                    saveToInternalStorage(MediaStore.Images.Media.getBitmap(cr, imgUri),
-                            name);
+                // name that will be used to get the picture from memory
+                currentSnapshot.setPhotoName(new SimpleDateFormat("yyyyMMdd_HHmmss")
+                        .format(Calendar.getInstance().getTime()));
+                // We will need to store this name in a database in order to be able to access it later
+                saveToInternalStorage(MediaStore.Images.Media.getBitmap(cr, imgUri),
+                        currentSnapshot.getPhotoName());
             }
             catch (IOException e)
             {
@@ -114,6 +146,7 @@ public class MainActivity extends AppCompatActivity
         {
             fos = new FileOutputStream(filePath);
             bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            Toast.makeText(getApplicationContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
         }
         catch (Exception e)
         {
@@ -134,11 +167,11 @@ public class MainActivity extends AppCompatActivity
         // This should be the same as the static final String from above the onCreate method
     }
 
-    private Bitmap loadImageFromStorage(String path, String name)
+    private Bitmap loadImageFromStorage(String name)
     {
         try
         {
-            File file = new File(path, name + ".jpg");
+            File file = new File(MainActivity.PATH, name + ".jpg");
             return BitmapFactory.decodeStream(new FileInputStream(file));
         }
         catch (FileNotFoundException e)
@@ -146,5 +179,33 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        }, 0);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED)
+        {
+            gpsManager.register();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        gpsManager.unregister();
     }
 }
