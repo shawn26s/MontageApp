@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="final_project.cs3174.montageapp.MainActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryDark"
+    android:id="@+id/mainFrame">
 
     <TableLayout
         android:layout_width="wrap_content"

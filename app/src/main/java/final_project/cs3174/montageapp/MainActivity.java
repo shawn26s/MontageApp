@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.FrameLayout;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +33,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements SnapshotConfirmFragment.OnFragmentInteractionListener
 {
     Button takePicture;
     Button viewMontage;
@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity
     File directory;
     GPSManager gpsManager;
     Snapshot currentSnapshot;
+    FrameLayout mainFrame;
+    SnapshotConfirmFragment scf;
 
     public static final int REQUEST_IMAGE = 1;
     public static final String PATH = "/data/user/0/final_project.cs3174.montageapp/app_imageDir";
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity
         takePicture = findViewById(R.id.takePicture);
         viewMontage = findViewById(R.id.viewMontage);
         settings = findViewById(R.id.settings);
+        mainFrame = findViewById(R.id.mainFrame);
         cw = new ContextWrapper(getApplicationContext());
         directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         gpsManager = new GPSManager(this);
@@ -119,16 +122,68 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_IMAGE && resultCode == RESULT_OK)
         {
             this.getContentResolver().notifyChange(imgUri, null);
-            ContentResolver cr = this.getContentResolver();
-            Log.d("test", "result ok");
+
+            // name that will be used to get the picture from memory
+            currentSnapshot.setPhotoName(new SimpleDateFormat("yyyyMMdd_HHmmss")
+                    .format(Calendar.getInstance().getTime()));
+            // We will need to store this name in a database in order to be able to access it later
+            scf = new SnapshotConfirmFragment();
             try
             {
-                // name that will be used to get the picture from memory
-                currentSnapshot.setPhotoName(new SimpleDateFormat("yyyyMMdd_HHmmss")
-                        .format(Calendar.getInstance().getTime()));
-                // We will need to store this name in a database in order to be able to access it later
+                scf.setSnapshotInfo(currentSnapshot, MediaStore.Images.Media.getBitmap(getContentResolver(), imgUri));
+                getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), scf).addToBackStack(null).commit();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        }, 0);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED)
+        {
+            gpsManager.register();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        gpsManager.unregister();
+    }
+
+    @Override
+    public void onSnapshotConfirmClick(int i, String m)
+    {
+        if (i == 0) // back was pressed
+        {
+
+        }
+        if (i == 1) // confirm was pressed
+        {
+            ContentResolver cr = this.getContentResolver();
+
+            try
+            {
                 saveToInternalStorage(MediaStore.Images.Media.getBitmap(cr, imgUri),
-                        currentSnapshot.getPhotoName());
+                        currentSnapshot.getPhotoName()); // This is going to be used to save images to memory
+                getSupportFragmentManager().beginTransaction().remove(scf).commit();
             }
             catch (IOException e)
             {
@@ -146,7 +201,6 @@ public class MainActivity extends AppCompatActivity
         {
             fos = new FileOutputStream(filePath);
             bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            Toast.makeText(getApplicationContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
         }
         catch (Exception e)
         {
@@ -179,33 +233,5 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        }, 0);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                grantResults[1] == PackageManager.PERMISSION_GRANTED)
-        {
-            gpsManager.register();
-        }
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        gpsManager.unregister();
     }
 }

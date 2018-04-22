@@ -18,11 +18,10 @@
 
             <ImageView
                 android:id="@+id/imageArea"
-                android:layout_width="170dp"
-                android:layout_height="250dp"
+                android:layout_width="220dp"
+                android:layout_height="300dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@color/colorPrimaryDark"
-                android:padding="10dp" />
+                android:background="@color/colorPrimaryDark"/>
 
             <TextView
                 android:id="@+id/imageInfo"
@@ -44,20 +43,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_weight="1"
-                    android:text="Your Mood:"
+                    android:text="Your Mood: "
                     android:textAlignment="center"
                     android:textColor="@color/colorAccent"
                     android:textSize="20dp" />
 
                 <EditText
                     android:id="@+id/enterMood"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
                     android:background="#BBBBBB"
                     android:textColor="@color/colorPrimaryDark"
-                    android:textSize="20dp" />
+                    android:textSize="20dp"
+                    android:imeOptions="actionDone"
+                    android:singleLine="true"/>
 
             </LinearLayout>
 

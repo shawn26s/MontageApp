@@ -1,6 +1,7 @@
 package final_project.cs3174.montageapp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,20 +12,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link SnapshotConfirmFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
-public class SnapshotConfirmFragment extends Fragment
+public class SnapshotConfirmFragment extends Fragment implements View.OnClickListener
 {
     ImageView imageArea;
     TextView imageInfo;
     EditText enterMood;
     Button confirm;
     Button goBack;
+    String snapshotInfo = "";
+    Bitmap image = null;
 
     private OnFragmentInteractionListener mListener;
 
@@ -41,10 +43,17 @@ public class SnapshotConfirmFragment extends Fragment
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_snapshot_confirm, container, false);
         imageArea = view.findViewById(R.id.imageArea);
+        if (image != null)
+        {
+            imageArea.setImageBitmap(image);
+        }
         imageInfo = view.findViewById(R.id.imageInfo);
+        imageInfo.setText(snapshotInfo);
         enterMood = view.findViewById(R.id.enterMood);
         confirm = view.findViewById(R.id.confirmButton);
+        confirm.setOnClickListener(this);
         goBack = view.findViewById(R.id.backButton);
+        goBack.setOnClickListener(this);
         return view;
     }
 
@@ -70,6 +79,34 @@ public class SnapshotConfirmFragment extends Fragment
     }
 
     /**
+     * Sets the current snapshot object for the fragment and updates the imageInfo.
+     * @param ss
+     */
+    public void setSnapshotInfo(Snapshot ss, Bitmap bitmap)
+    {
+        String date = ss.getPhotoName().substring(4, 6) + "/"
+                + ss.getPhotoName().substring(6, 8) + "/"
+                + ss.getPhotoName().substring(2, 4);
+        image = bitmap;
+        snapshotInfo = "Date: " + date + "\n" +
+                "Location: " + ss.getLocation() + "\n"
+                + "Weather: " + ss.getWeather();
+    }
+
+    public void onClick(View v)
+    {
+        if (v.getId() == goBack.getId())
+        {
+            mListener.onSnapshotConfirmClick(0, null);
+        }
+        else if (v.getId() == confirm.getId())
+        {
+            // Tell MainActivity that confirm was clicked and send back the mood String from the text entry box
+            mListener.onSnapshotConfirmClick(1, enterMood.getText().toString().replace("'", ""));
+        }
+    }
+
+    /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
@@ -81,6 +118,6 @@ public class SnapshotConfirmFragment extends Fragment
      */
     public interface OnFragmentInteractionListener
     {
-
+        void onSnapshotConfirmClick(int i, String m);
     }
 }
