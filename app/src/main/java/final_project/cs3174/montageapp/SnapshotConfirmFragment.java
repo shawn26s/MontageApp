@@ -88,9 +88,9 @@ public class SnapshotConfirmFragment extends Fragment implements View.OnClickLis
                 + ss.getPhotoName().substring(6, 8) + "/"
                 + ss.getPhotoName().substring(2, 4);
         image = bitmap;
-        snapshotInfo = "Date: " + date + "\n" +
-                "Location: " + ss.getLocation() + "\n"
-                + "Weather: " + ss.getWeather();
+        snapshotInfo = "Date: " + date + "\n\n" +
+                "Location: " + ss.getLocation() + "\n\n"
+                + "Weather: " + ss.getWeather() + "\n";
     }
 
     public void onClick(View v)

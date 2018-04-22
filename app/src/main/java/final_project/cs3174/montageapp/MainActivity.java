@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     Button takePicture;
     Button viewMontage;
     Button settings;
-    private Uri imgUri;
+    Uri imgUri;
     ContextWrapper cw;
     File directory;
     GPSManager gpsManager;
@@ -177,23 +177,14 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         }
         if (i == 1) // confirm was pressed
         {
-            ContentResolver cr = this.getContentResolver();
-
-            try
-            {
-                saveToInternalStorage(MediaStore.Images.Media.getBitmap(cr, imgUri),
-                        currentSnapshot.getPhotoName()); // This is going to be used to save images to memory
-                getSupportFragmentManager().beginTransaction().remove(scf).commit();
-            }
-            catch (IOException e)
-            {
-                Log.d("test", "activity result error");
-                e.printStackTrace();
-            }
+            // Set up the AsyncTask to save image to internal storage and then remove the confirm fragment
+            SaveImageAsync saveImage = new SaveImageAsync(this);
+            saveImage.execute();
+            getSupportFragmentManager().beginTransaction().remove(scf).commit();
         }
     }
 
-    private void saveToInternalStorage(Bitmap bitmapImage, String name)
+    public void saveToInternalStorage(Bitmap bitmapImage, String name)
     {
         File filePath = new File(directory,name + ".jpg"); // <-- name of the file that we are saving
         FileOutputStream fos = null;
@@ -221,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         // This should be the same as the static final String from above the onCreate method
     }
 
-    private Bitmap loadImageFromStorage(String name)
+    public Bitmap loadImageFromStorage(String name)
     {
         try
         {
