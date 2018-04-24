@@ -33,7 +33,7 @@ public class GPSManager implements LocationListener
                 && ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED)
         {
-            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 5000, 5, this);
+            locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 1000, 5, this);
             currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
         }
     }

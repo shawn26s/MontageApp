@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,6 +84,11 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         {
             e.printStackTrace();
         }
+
+        // get the weather using the provided location.
+        WeatherAPI weatherAPI = new WeatherAPI(this);
+        weatherAPI.getWeatherData(loc);
+
         try
         {
             File storageDir = this.getFilesDir();
@@ -108,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
 
     }
-
 
     public void onClickSettings(View view)
     {
@@ -140,32 +145,9 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         }
     }
 
-    @Override
-    protected void onStart()
+    public void logWeather(String weather)
     {
-        super.onStart();
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        }, 0);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                grantResults[1] == PackageManager.PERMISSION_GRANTED)
-        {
-            gpsManager.register();
-        }
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-        gpsManager.unregister();
+        this.currentSnapshot.setWeather(weather);
     }
 
     @Override
@@ -178,6 +160,10 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         if (i == 1) // confirm was pressed
         {
             // Set up the AsyncTask to save image to internal storage and then remove the confirm fragment
+            if (m != null)
+            {
+                this.currentSnapshot.setMood(m);
+            }
             SaveImageAsync saveImage = new SaveImageAsync(this);
             saveImage.execute();
             getSupportFragmentManager().beginTransaction().remove(scf).commit();
@@ -225,4 +211,34 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         }
         return null;
     }
+
+    // Start, Destroy, Permission Request methods *****************************
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        }, 0);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                grantResults[1] == PackageManager.PERMISSION_GRANTED)
+        {
+            gpsManager.register();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        gpsManager.unregister();
+    }
+    // ************************************************************************
 }
