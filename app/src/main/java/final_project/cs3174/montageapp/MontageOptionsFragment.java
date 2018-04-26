@@ -1,7 +1,6 @@
 package final_project.cs3174.montageapp;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,7 +24,11 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
     RadioButton time2;
     RadioButton time3;
     RadioButton time4;
+    RadioButton order0;
+    RadioButton order1;
+    RadioButton order2;
     int timeSetting; // time for each photo in the montage in milliseconds
+    int order; // 0 = chronological, 1 = reverse chronological, 2 = random
     Button start;
 
     public MontageOptionsFragment()
@@ -53,6 +55,14 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         time4 = v.findViewById(R.id.secondsFit);
         time4.setOnClickListener(this);
         start = v.findViewById(R.id.startMontage);
+        order0 = v.findViewById(R.id.oldToNew);
+        order0.setOnClickListener(this);
+        order1 = v.findViewById(R.id.newToOld);
+        order1.setOnClickListener(this);
+        order2 = v.findViewById(R.id.randOrder);
+        order2.setOnClickListener(this);
+        order0.setChecked(true);
+        order = 0;
         return v;
     }
 
@@ -98,11 +108,23 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         }
         else if (v.getId() == time4.getId())
         {
-            timeSetting = -1; // will require extra processing later, based on the number of photos saved and
+            timeSetting = -1; // will require extra processing later, based on the number of photos saved
+        }
+        else if (v.getId() == order0.getId())
+        {
+            order = 0;
+        }
+        else if (v.getId() == order1.getId())
+        {
+            order = 1;
+        }
+        else if (v.getId() == order2.getId())
+        {
+            order = 2;
         }
         else if (v.getId() == start.getId())
         {
-
+            mListener.onStartClicked(timeSetting, order);
         }
     }
 
@@ -118,6 +140,6 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
      */
     public interface OnFragmentInteractionListener
     {
-        void onStartClicked(int time);
+        void onStartClicked(int time, int order);
     }
 }

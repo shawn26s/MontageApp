@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     FrameLayout mainFrame;
     SnapshotConfirmFragment scf;
     MontageOptionsFragment mof;
+    SnapshotDatabaseManager sdbman;
 
     public static final int REQUEST_IMAGE = 1;
     public static final String PATH = "/data/user/0/final_project.cs3174.montageapp/app_imageDir";
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         gpsManager = new GPSManager(this);
         currentSnapshot = new Snapshot();
+        sdbman = new SnapshotDatabaseManager(this);
     }
 
     // Will get the date, location, weather, user's mood, and the photo
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         this.currentSnapshot.setWeather(weather);
     }
 
-    @Override
+    @Override // from SnapshotConfirmFragment
     public void onSnapshotConfirmClick(int i, String m)
     {
         if (i == 0) // back was pressed
@@ -169,14 +171,15 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             }
             SaveImageAsync saveImage = new SaveImageAsync(this);
             saveImage.execute();
+            sdbman.insertSnapshot(currentSnapshot);
             getSupportFragmentManager().beginTransaction().remove(scf).commit();
         }
     }
 
-    @Override
-    public void onStartClicked(int time)
+    @Override // from MontageOptionsFragment
+    public void onStartClicked(int time, int order)
     {
-
+        // Will need to start the fragment that plays the montage and pass in the settings.
     }
 
     public void saveToInternalStorage(Bitmap bitmapImage, String name)
@@ -204,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             }
         }
         Log.d("directory path", directory.getAbsolutePath());
+
         // This should be the same as the static final String from above the onCreate method
     }
 
@@ -233,6 +237,13 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     }
 
     @Override
+    protected void onResume()
+    {
+        super.onResume();
+        sdbman.open();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -241,6 +252,13 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         {
             gpsManager.register();
         }
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        sdbman.close();
     }
 
     @Override
