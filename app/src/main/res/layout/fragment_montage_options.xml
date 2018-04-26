@@ -1,0 +1,94 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    tools:context="final_project.cs3174.montageapp.MontageOptionsFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="5dp"
+                android:text="How long should each picture be shown?"
+                android:textAlignment="center"
+                android:textColor="@color/colorAccent"
+                android:textSize="25dp" />
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="15dp">
+
+                <RadioButton
+                    android:id="@+id/seconds0_5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/colorAccent"
+                    android:text="0.5 Seconds"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="20dp" />
+
+                <RadioButton
+                    android:id="@+id/seconds1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/colorAccent"
+                    android:text="1 Seconds"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="20dp" />
+
+                <RadioButton
+                    android:id="@+id/seconds2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/colorAccent"
+                    android:text="2 Seconds"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="20dp" />
+
+                <RadioButton
+                    android:id="@+id/seconds5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/colorAccent"
+                    android:text="5 Seconds"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="20dp" />
+
+                <RadioButton
+                    android:id="@+id/secondsFit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/colorAccent"
+                    android:text="Fit to 1 minute"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="20dp" />
+
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/startMontage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="@color/colorAccent"
+                android:text="Start Montage!"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="25dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</RelativeLayout>

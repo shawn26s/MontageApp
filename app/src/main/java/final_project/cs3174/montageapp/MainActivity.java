@@ -34,7 +34,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements SnapshotConfirmFragment.OnFragmentInteractionListener
+public class MainActivity extends AppCompatActivity implements SnapshotConfirmFragment.OnFragmentInteractionListener,
+        MontageOptionsFragment.OnFragmentInteractionListener
 {
     Button takePicture;
     Button viewMontage;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     Snapshot currentSnapshot;
     FrameLayout mainFrame;
     SnapshotConfirmFragment scf;
+    MontageOptionsFragment mof;
 
     public static final int REQUEST_IMAGE = 1;
     public static final String PATH = "/data/user/0/final_project.cs3174.montageapp/app_imageDir";
@@ -112,7 +114,8 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
 
     public void onViewMontage(View view)
     {
-
+        mof = new MontageOptionsFragment();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).addToBackStack(null).commit();
     }
 
     public void onClickSettings(View view)
@@ -155,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         if (i == 0) // back was pressed
         {
-
+            onBackPressed();
         }
         if (i == 1) // confirm was pressed
         {
@@ -168,6 +171,12 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             saveImage.execute();
             getSupportFragmentManager().beginTransaction().remove(scf).commit();
         }
+    }
+
+    @Override
+    public void onStartClicked(int time)
+    {
+
     }
 
     public void saveToInternalStorage(Bitmap bitmapImage, String name)
