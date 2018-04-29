@@ -1,7 +1,5 @@
 package final_project.cs3174.montageapp;
 
-import android.graphics.Bitmap;
-
 /**
  * Created by Shawn on 4/19/2018.
  */

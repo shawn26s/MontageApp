@@ -1,7 +1,5 @@
 package final_project.cs3174.montageapp;
 
-import android.content.ContentResolver;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.widget.Toast;
@@ -34,13 +32,6 @@ public class SaveImageAsync extends AsyncTask<Integer, Integer, Void>
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    protected void onPreExecute()
-    {
-        Toast.makeText(mainActivity.getApplicationContext(), "Saving your image...", Toast.LENGTH_SHORT).show();
-        super.onPreExecute();
     }
 
     @Override

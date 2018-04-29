@@ -1,0 +1,50 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    tools:context="final_project.cs3174.montageapp.SettingsFragment">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Record location and weather data?"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:textSize="25dp"
+            android:buttonTint="@color/colorPrimary"
+            android:id="@+id/checkbox"/>
+
+        <TextView
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Delete all records and data?"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:textSize="25dp"/>
+
+        <Button
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Delete Records"
+            android:textAlignment="center"
+            android:textColor="@color/colorAccent"
+            android:background="@color/colorPrimary"
+            android:textSize="25dp"
+            android:id="@+id/deleteRecords"/>
+
+    </LinearLayout>
+
+</FrameLayout>

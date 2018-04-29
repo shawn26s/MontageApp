@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
@@ -35,11 +37,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SnapshotConfirmFragment.OnFragmentInteractionListener,
-        MontageOptionsFragment.OnFragmentInteractionListener
+        MontageOptionsFragment.OnFragmentInteractionListener, MontageFragment.OnFragmentInteractionListener,
+        SettingsFragment.OnFragmentInteractionListener, ConfirmDeleteFragment.OnFragmentInteractionListener
 {
     Button takePicture;
     Button viewMontage;
     Button settings;
+    File outputFile;
     Uri imgUri;
     ContextWrapper cw;
     File directory;
@@ -48,10 +52,16 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     FrameLayout mainFrame;
     SnapshotConfirmFragment scf;
     MontageOptionsFragment mof;
+    MontageFragment mf;
     SnapshotDatabaseManager sdbman;
+    SettingsFragment sf;
+    ConfirmDeleteFragment cdf;
+    SharedPreferences sharedPref;
+    boolean recordLocation;
 
     public static final int REQUEST_IMAGE = 1;
     public static final String PATH = "/data/user/0/final_project.cs3174.montageapp/app_imageDir";
+    public static final String RECORD_LOCATION = "record_location";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -68,12 +78,15 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         gpsManager = new GPSManager(this);
         currentSnapshot = new Snapshot();
         sdbman = new SnapshotDatabaseManager(this);
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        recordLocation = sharedPref.getBoolean(RECORD_LOCATION, true);
     }
 
     // Will get the date, location, weather, user's mood, and the photo
     // and store it into the currentSnapshot object.
     public void onTakePicture(View view)
     {
+        currentSnapshot = new Snapshot();
         Location loc = gpsManager.getCurrentLocation();
         Geocoder geocoder;
         List<Address> addresses;
@@ -81,7 +94,10 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         try
         {
             addresses = geocoder.getFromLocation(loc.getLatitude(), loc.getLongitude(), 1);
-            currentSnapshot.setLocation(addresses.get(0).getAddressLine(0));
+            if (recordLocation)
+            {
+                currentSnapshot.setLocation(addresses.get(0).getAddressLine(0));
+            }
             Log.d("streetAddress", currentSnapshot.getLocation());
         }
         catch (IOException e)
@@ -96,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         try
         {
             File storageDir = this.getFilesDir();
-            File outputFile = File.createTempFile("" +
+            outputFile = File.createTempFile("" +
                     Calendar.getInstance().getTimeInMillis(), ".jpg", storageDir);
             imgUri = FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID + ".provider", outputFile);
@@ -117,12 +133,13 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     public void onViewMontage(View view)
     {
         mof = new MontageOptionsFragment();
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).addToBackStack(null).commit();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).commit();
     }
 
     public void onClickSettings(View view)
     {
-
+        sf = new SettingsFragment();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), sf).addToBackStack(null).commit();
     }
 
     @Override
@@ -152,7 +169,10 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
 
     public void logWeather(String weather)
     {
-        this.currentSnapshot.setWeather(weather);
+        if (recordLocation)
+        {
+            this.currentSnapshot.setWeather(weather);
+        }
     }
 
     @Override // from SnapshotConfirmFragment
@@ -160,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         if (i == 0) // back was pressed
         {
-            onBackPressed();
+            getSupportFragmentManager().beginTransaction().remove(scf).commit();
         }
         if (i == 1) // confirm was pressed
         {
@@ -173,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             saveImage.execute();
             sdbman.insertSnapshot(currentSnapshot);
             getSupportFragmentManager().beginTransaction().remove(scf).commit();
+            getContentResolver().delete(imgUri, null, null);
         }
     }
 
@@ -180,6 +201,57 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     public void onStartClicked(int time, int order)
     {
         // Will need to start the fragment that plays the montage and pass in the settings.
+        mf = new MontageFragment();
+        mf.setTimeAndOrder(time, order, sdbman.getAllRecords().size());
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mf).commit();
+    }
+
+    @Override // from MontageFragment
+    public void removeMontageFrag()
+    {
+        if (mf != null)
+        {
+            getSupportFragmentManager().beginTransaction().remove(mf).commit();
+        }
+    }
+
+    @Override // from SettingsFragment
+    public void setRecordLocation(boolean rec)
+    {
+        this.recordLocation = rec;
+    }
+
+    @Override
+    public MainActivity setMainActivity()
+    {
+        return this;
+    }
+
+    @Override
+    public void confirmDelete()
+    {
+        // Bring up another fragment that asks user to confirm decision to delete
+        cdf = new ConfirmDeleteFragment();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), cdf).addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onClickConfirm(boolean b)
+    {
+        if (b)
+        {
+            // delete all records in the database and clear the folder containing the images
+            File file = new File(PATH);
+            String[] files = file.list();
+            for (int i = 0; i<files.length; i++)
+            {
+                File myFile = new File(file, files[i]);
+                myFile.delete();
+            }
+            sdbman.deleteAll();
+            Toast.makeText(getApplicationContext(), "All images and data removed", Toast.LENGTH_SHORT).show();
+        }
+        onBackPressed();
     }
 
     public void saveToInternalStorage(Bitmap bitmapImage, String name)
@@ -189,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         try
         {
             fos = new FileOutputStream(filePath);
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 25, fos);
         }
         catch (Exception e)
         {
@@ -207,7 +279,6 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             }
         }
         Log.d("directory path", directory.getAbsolutePath());
-
         // This should be the same as the static final String from above the onCreate method
     }
 
@@ -225,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         return null;
     }
 
-    // Start, Destroy, Permission Request methods *****************************
+    // Start, Resume, Pause, Destroy, Permission Request methods *****************************
     @Override
     protected void onStart()
     {
