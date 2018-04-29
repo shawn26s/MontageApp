@@ -198,15 +198,19 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     }
 
     @Override // from MontageOptionsFragment
-    public void onStartClicked(int time, int order)
+    public void onStartClicked(int time, int order, Uri musicUri)
     {
         // Will need to start the fragment that plays the montage and pass in the settings.
         mf = new MontageFragment();
         mf.setTimeAndOrder(time, order, sdbman.getAllRecords().size());
+        if (musicUri != null)
+        {
+            mf.setMediaPlayer(getApplicationContext(), musicUri);
+        }
         getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mf).commit();
     }
 
-    @Override // from MontageFragment
+    // from MontageFragment
     public void removeMontageFrag()
     {
         if (mf != null)

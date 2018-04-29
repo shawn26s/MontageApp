@@ -1,6 +1,9 @@
 package final_project.cs3174.montageapp;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -33,6 +37,7 @@ public class MontageFragment extends Fragment
     int timeSetting;
     int orderSetting;
     MontageAsync montageAsync;
+    MediaPlayer mPlayer = null;
 
     public MontageFragment()
     {
@@ -123,6 +128,21 @@ public class MontageFragment extends Fragment
         mListener = null;
     }
 
+    public void setMediaPlayer(Context context, Uri musicUri)
+    {
+        mPlayer = new MediaPlayer();
+        mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try
+        {
+            mPlayer.setDataSource(context, musicUri);
+            mPlayer.prepare();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -136,7 +156,6 @@ public class MontageFragment extends Fragment
     public interface OnFragmentInteractionListener
     {
         MainActivity setMainActivity();
-        void removeMontageFrag();
     }
 
     private class MontageAsync extends AsyncTask<Integer, Integer, Void>
@@ -144,6 +163,10 @@ public class MontageFragment extends Fragment
         @Override // handles image changes
         protected Void doInBackground(Integer...integers)
         {
+            if (mPlayer != null)
+            {
+                mPlayer.start();
+            }
             for (int i = 0; i < snapshots.size(); i++)
             {
                 publishProgress(i);
@@ -155,6 +178,10 @@ public class MontageFragment extends Fragment
                 {
                     e.printStackTrace();
                 }
+            }
+            if (mPlayer != null)
+            {
+                mPlayer.stop();
             }
             publishProgress(-1);
             return null;
