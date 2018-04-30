@@ -1,13 +1,23 @@
 package final_project.cs3174.montageapp;
 
 import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.Toast;
+
+import java.io.IOException;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,7 +39,11 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
     RadioButton order2;
     int timeSetting; // time for each photo in the montage in milliseconds
     int order; // 0 = chronological, 1 = reverse chronological, 2 = random
+    Button selectMusic;
     Button start;
+    Uri musicUri;
+
+    public static final int REQUEST_MUSIC_CODE = 42;
 
     public MontageOptionsFragment()
     {
@@ -53,8 +67,6 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         time3.setOnClickListener(this);
         time4 = v.findViewById(R.id.secondsFit);
         time4.setOnClickListener(this);
-        start = v.findViewById(R.id.startMontage);
-        start.setOnClickListener(this);
         order0 = v.findViewById(R.id.oldToNew);
         order0.setOnClickListener(this);
         order1 = v.findViewById(R.id.newToOld);
@@ -62,6 +74,11 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         order2 = v.findViewById(R.id.randOrder);
         order2.setOnClickListener(this);
         order0.setChecked(true);
+        selectMusic = v.findViewById(R.id.selectMusic);
+        selectMusic.setOnClickListener(this);
+        start = v.findViewById(R.id.startMontage);
+        start.setOnClickListener(this);
+        musicUri = null;
         return v;
     }
 
@@ -121,9 +138,26 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         {
             order = 2;
         }
+        else if (v.getId() == selectMusic.getId())
+        {
+            Intent musicIntent = new Intent(Intent.ACTION_GET_CONTENT,
+                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(musicIntent, REQUEST_MUSIC_CODE);
+        }
         else if (v.getId() == start.getId())
         {
-            mListener.onStartClicked(timeSetting, order);
+            mListener.onStartClicked(timeSetting, order, musicUri);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_MUSIC_CODE && resultCode == RESULT_OK)
+        {
+            musicUri = data.getData();
+            Toast.makeText(mListener.setMainActivity().getApplicationContext(), "Music added!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -139,6 +173,7 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
      */
     public interface OnFragmentInteractionListener
     {
-        void onStartClicked(int time, int order);
+        void onStartClicked(int time, int order, Uri musicUri);
+        MainActivity setMainActivity();
     }
 }
