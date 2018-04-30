@@ -58,12 +58,18 @@
                 android:onClick="onClickSettings"
                 />
         </TableRow>
+        <TableRow android:padding="10dp">
+            <TextView
+                android:padding="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAlignment="center"
+                android:textColor="@color/colorAccent"
+                android:textSize="25dp"
+                android:id="@+id/lastPhoto"/>
+        </TableRow>
 
     </TableLayout>
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:id="@+id/image"
-        android:layout_gravity="bottom|center_horizontal"/>
 
 </FrameLayout>

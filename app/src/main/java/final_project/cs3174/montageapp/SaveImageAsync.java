@@ -38,6 +38,7 @@ public class SaveImageAsync extends AsyncTask<Integer, Integer, Void>
     protected void onPostExecute(Void aVoid)
     {
         Toast.makeText(mainActivity.getApplicationContext(), "Image Saved!", Toast.LENGTH_SHORT).show();
+        mainActivity.setLastPhotoText();
         super.onPostExecute(aVoid);
     }
 }
