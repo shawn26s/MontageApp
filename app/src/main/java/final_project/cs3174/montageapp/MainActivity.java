@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     Button takePicture;
     Button viewMontage;
     Button settings;
+    TextView lastPhoto;
     File outputFile;
     Uri imgUri;
     ContextWrapper cw;
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         sdbman = new SnapshotDatabaseManager(this);
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         recordLocation = sharedPref.getBoolean(RECORD_LOCATION, true);
+        lastPhoto = findViewById(R.id.lastPhoto);
     }
 
     // Will get the date, location, weather, user's mood, and the photo
@@ -229,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         // Bring up another fragment that asks user to confirm decision to delete
         cdf = new ConfirmDeleteFragment();
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), cdf).commit();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), cdf).addToBackStack(null).commit();
     }
 
     @Override
@@ -247,7 +251,9 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             }
             sdbman.deleteAll();
             Toast.makeText(getApplicationContext(), "All images and data removed", Toast.LENGTH_SHORT).show();
+            setLastPhotoText();
         }
+        onBackPressed();
         onBackPressed();
     }
 
@@ -293,7 +299,38 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         return null;
     }
 
-    // Start, Resume, Pause, Destroy, Permission Request, and BackPressed methods *****************************
+    public boolean hasPictureForToday(String lastDate)
+    {
+        String currentDate = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                .format(Calendar.getInstance().getTime());
+        return (lastDate.substring(0, 8).equals(currentDate.substring(0, 8)));
+    }
+
+    public void setLastPhotoText()
+    {
+        if (!sdbman.getAllRecords().isEmpty())
+        {
+            ArrayList<Snapshot> list = sdbman.getAllRecords();
+            Snapshot snap = list.get(list.size() - 1);
+            if (hasPictureForToday(snap.getPhotoName()))
+            {
+                String date = snap.getPhotoName().substring(4, 6) + "/"
+                        + snap.getPhotoName().substring(6, 8) + "/"
+                        + snap.getPhotoName().substring(2, 4);
+                lastPhoto.setText("You have a photo for today, " + date + "!");
+            }
+            else
+            {
+                lastPhoto.setText("You don't have a photo for today, remember to take a picture!");
+            }
+        }
+        else
+        {
+            lastPhoto.setText("You don't have a photo for today, remember to take a picture!");
+        }
+    }
+
+    // Start, Resume, Pause, Destroy, Permission Request, and onBackPressed methods *****************************
     @Override
     protected void onStart()
     {
@@ -309,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         super.onResume();
         sdbman.open();
+        setLastPhotoText();
     }
 
     @Override
