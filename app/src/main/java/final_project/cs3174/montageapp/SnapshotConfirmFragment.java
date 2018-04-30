@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 /**
@@ -22,7 +22,7 @@ public class SnapshotConfirmFragment extends Fragment implements View.OnClickLis
 {
     ImageView imageArea;
     TextView imageInfo;
-    EditText enterMood;
+    RadioGroup moodGroup;
     Button confirm;
     Button goBack;
     String snapshotInfo = "";
@@ -49,7 +49,7 @@ public class SnapshotConfirmFragment extends Fragment implements View.OnClickLis
         }
         imageInfo = view.findViewById(R.id.imageInfo);
         imageInfo.setText(snapshotInfo);
-        enterMood = view.findViewById(R.id.enterMood);
+        moodGroup = view.findViewById(R.id.mood_group);
         confirm = view.findViewById(R.id.confirmButton);
         confirm.setOnClickListener(this);
         goBack = view.findViewById(R.id.backButton);
@@ -102,7 +102,18 @@ public class SnapshotConfirmFragment extends Fragment implements View.OnClickLis
         else if (v.getId() == confirm.getId())
         {
             // Tell MainActivity that confirm was clicked and send back the mood String from the text entry box
-            mListener.onSnapshotConfirmClick(1, enterMood.getText().toString().replace("'", ""));
+            mListener.onSnapshotConfirmClick(1, moodStringFor(moodGroup.getCheckedRadioButtonId()));
+        }
+    }
+
+    private String moodStringFor(int buttonId) {
+        switch (buttonId) {
+            case R.id.btn_very_happy:   return "Very Happy";
+            case R.id.btn_happy:        return "Happy";
+            case R.id.btn_neutral:      return "Neutral";
+            case R.id.btn_confused:     return "Confused";
+            case R.id.btn_sad:          return "Sad";
+            default:                    return null;
         }
     }
 
