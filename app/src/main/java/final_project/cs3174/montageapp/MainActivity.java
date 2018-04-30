@@ -13,6 +13,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     public void onViewMontage(View view)
     {
         mof = new MontageOptionsFragment();
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).commit();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).addToBackStack(null).commit();
     }
 
     public void onClickSettings(View view)
@@ -207,16 +208,8 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         {
             mf.setMediaPlayer(getApplicationContext(), musicUri);
         }
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mf).commit();
-    }
-
-    // from MontageFragment
-    public void removeMontageFrag()
-    {
-        if (mf != null)
-        {
-            getSupportFragmentManager().beginTransaction().remove(mf).commit();
-        }
+        mof.resetChecks();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mf).addToBackStack(null).commit();
     }
 
     @Override // from SettingsFragment
@@ -236,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         // Bring up another fragment that asks user to confirm decision to delete
         cdf = new ConfirmDeleteFragment();
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), cdf).addToBackStack(null).commit();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), cdf).commit();
     }
 
     @Override
@@ -300,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         return null;
     }
 
-    // Start, Resume, Pause, Destroy, Permission Request methods *****************************
+    // Start, Resume, Pause, Destroy, Permission Request, and BackPressed methods *****************************
     @Override
     protected void onStart()
     {
@@ -342,5 +335,25 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         super.onDestroy();
         gpsManager.unregister();
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        if (mf != null)
+        {
+            if (mf.mPlayer != null && mf.mPlayer.isPlaying())
+            {
+                mf.mPlayer.stop();
+                mf.mPlayer = null;
+            }
+            if (mf.montageAsync != null && mf.montageAsync.getStatus() == AsyncTask.Status.RUNNING)
+            {
+                mf.montageAsync.cancel(true);
+            }
+            mf = null;
+        }
+    }
+
     // ************************************************************************
 }
