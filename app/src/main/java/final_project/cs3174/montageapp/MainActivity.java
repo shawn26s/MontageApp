@@ -1,6 +1,8 @@
 package final_project.cs3174.montageapp;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -14,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -81,6 +84,25 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         sdbman = new SnapshotDatabaseManager(this);
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         recordLocation = sharedPref.getBoolean(RECORD_LOCATION, true);
+
+        addNotifications();
+    }
+
+    //Will create a new intent for AlarmReceiver class and creates
+    public void addNotifications(){
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 8);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_HALF_DAY, pendingIntent);
     }
 
     // Will get the date, location, weather, user's mood, and the photo

@@ -4,8 +4,7 @@ package final_project.cs3174.montageapp;
  * Created by Shawn on 4/19/2018.
  */
 
-public class Snapshot
-{
+public class Snapshot {
     // The string of the photo's name so that it can be pulled from app's internal storage (also represent's the photo's date)
     String photoName;
     // The street address returned by the geocoder for this picture's location
@@ -15,8 +14,7 @@ public class Snapshot
     // The weather during the time the photo was taken
     String weather;
 
-    public Snapshot()
-    {
+    public Snapshot() {
         // initialize all fields
         this.photoName = "";
         this.location = "";
@@ -24,43 +22,35 @@ public class Snapshot
         this.weather = "";
     }
 
-    public String getPhotoName()
-    {
+    public String getPhotoName() {
         return photoName;
     }
 
-    public void setPhotoName(String photoName)
-    {
+    public void setPhotoName(String photoName) {
         this.photoName = photoName;
     }
 
-    public String getLocation()
-    {
+    public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location)
-    {
+    public void setLocation(String location) {
         this.location = location;
     }
 
-    public String getMood()
-    {
+    public String getMood() {
         return mood;
     }
 
-    public void setMood(String mood)
-    {
+    public void setMood(String mood) {
         this.mood = mood;
     }
 
-    public String getWeather()
-    {
+    public String getWeather() {
         return weather;
     }
 
-    public void setWeather(String weather)
-    {
+    public void setWeather(String weather) {
         this.weather = weather;
     }
 }
