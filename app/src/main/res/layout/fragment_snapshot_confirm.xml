@@ -21,7 +21,7 @@
                 android:layout_width="220dp"
                 android:layout_height="300dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@color/colorPrimaryDark"/>
+                android:background="@color/colorPrimaryDark" />
 
             <TextView
                 android:id="@+id/imageInfo"
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -48,15 +48,49 @@
                     android:textColor="@color/colorAccent"
                     android:textSize="20dp" />
 
-                <EditText
-                    android:id="@+id/enterMood"
+                <RadioGroup
+                    android:id="@+id/mood_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#BBBBBB"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="20dp"
-                    android:imeOptions="actionDone"
-                    android:singleLine="true"/>
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/btn_very_happy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:button="@drawable/btn_very_happy" />
+
+                    <RadioButton
+                        android:id="@+id/btn_happy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:button="@drawable/btn_happy" />
+
+                    <RadioButton
+                        android:id="@+id/btn_neutral"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:button="@drawable/btn_neutral" />
+
+                    <RadioButton
+                        android:id="@+id/btn_confused"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:button="@drawable/btn_confused" />
+
+                    <RadioButton
+                        android:id="@+id/btn_sad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:button="@drawable/btn_sad" />
+
+                </RadioGroup>
 
             </LinearLayout>
 
