@@ -183,10 +183,6 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     @Override // from SnapshotConfirmFragment
     public void onSnapshotConfirmClick(int i, String m)
     {
-        if (i == 0) // back was pressed
-        {
-            getSupportFragmentManager().beginTransaction().remove(scf).commit();
-        }
         if (i == 1) // confirm was pressed
         {
             // Set up the AsyncTask to save image to internal storage and then remove the confirm fragment
@@ -197,9 +193,9 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             SaveImageAsync saveImage = new SaveImageAsync(this);
             saveImage.execute();
             sdbman.insertSnapshot(currentSnapshot);
-            getSupportFragmentManager().beginTransaction().remove(scf).commit();
-            getContentResolver().delete(imgUri, null, null);
-        }
+        } // if Go Back was pressed, only the following lines will be executed
+        getSupportFragmentManager().beginTransaction().remove(scf).commit();
+        getContentResolver().delete(imgUri, null, null);
     }
 
     @Override // from MontageOptionsFragment

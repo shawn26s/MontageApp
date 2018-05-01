@@ -12,12 +12,12 @@ import java.util.Calendar;
  * Created by Zac on 4/30/2018.
  */
 
-public class DeviceBootReciever extends BroadcastReceiver {
+public class DeviceBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            // on device boot compelete, reset the alarm
+            // on device boot complete, reset the alarm
             Intent alarmIntent = new Intent(context, AlarmReceiver.class);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
