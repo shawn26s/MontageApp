@@ -140,7 +140,6 @@ public class MontageFragment extends Fragment
         {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -158,7 +157,7 @@ public class MontageFragment extends Fragment
         MainActivity setMainActivity();
     }
 
-    private class MontageAsync extends AsyncTask<Integer, Integer, Void>
+    public class MontageAsync extends AsyncTask<Integer, Integer, Void>
     {
         @Override // handles image changes
         protected Void doInBackground(Integer...integers)
@@ -167,7 +166,7 @@ public class MontageFragment extends Fragment
             {
                 mPlayer.start();
             }
-            for (int i = 0; i < snapshots.size(); i++)
+            for (int i = 0; i < snapshots.size() && !this.isCancelled(); i++)
             {
                 publishProgress(i);
                 try
@@ -199,8 +198,21 @@ public class MontageFragment extends Fragment
             {
                 Toast.makeText(mainActivity.getApplicationContext(),
                         "That's it!", Toast.LENGTH_SHORT).show();
-                mainActivity.removeMontageFrag();
+                mPlayer = null;
             }
+        }
+
+        @Override
+        protected void onCancelled()
+        {
+            if (mPlayer != null && mPlayer.isPlaying())
+            {
+                mPlayer.stop();
+            }
+            mPlayer = null;
+            super.onCancelled();
+            Toast.makeText(mainActivity.getApplicationContext(),
+                    "Montage Cancelled.", Toast.LENGTH_SHORT).show();
         }
     }
 }

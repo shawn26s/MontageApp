@@ -59,6 +59,7 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         time0 = v.findViewById(R.id.seconds0_5);
         time0.setOnClickListener(this);
         time0.setChecked(true);
+        timeSetting = 500;
         time1 = v.findViewById(R.id.seconds1);
         time1.setOnClickListener(this);
         time2 = v.findViewById(R.id.seconds2);
@@ -74,6 +75,7 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         order2 = v.findViewById(R.id.randOrder);
         order2.setOnClickListener(this);
         order0.setChecked(true);
+        order = 0;
         selectMusic = v.findViewById(R.id.selectMusic);
         selectMusic.setOnClickListener(this);
         start = v.findViewById(R.id.startMontage);
@@ -148,6 +150,12 @@ public class MontageOptionsFragment extends Fragment implements View.OnClickList
         {
             mListener.onStartClicked(timeSetting, order, musicUri);
         }
+    }
+
+    public void resetChecks()
+    {
+        time0.setChecked(true);
+        order0.setChecked(true);
     }
 
     @Override

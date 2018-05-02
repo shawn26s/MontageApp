@@ -13,6 +13,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -32,6 +34,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     Button takePicture;
     Button viewMontage;
     Button settings;
+    TextView lastPhoto;
     File outputFile;
     Uri imgUri;
     ContextWrapper cw;
@@ -80,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         sdbman = new SnapshotDatabaseManager(this);
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         recordLocation = sharedPref.getBoolean(RECORD_LOCATION, true);
+        lastPhoto = findViewById(R.id.lastPhoto);
     }
 
     // Will get the date, location, weather, user's mood, and the photo
@@ -133,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     public void onViewMontage(View view)
     {
         mof = new MontageOptionsFragment();
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).commit();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).addToBackStack(null).commit();
     }
 
     public void onClickSettings(View view)
@@ -178,10 +183,6 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     @Override // from SnapshotConfirmFragment
     public void onSnapshotConfirmClick(int i, String m)
     {
-        if (i == 0) // back was pressed
-        {
-            getSupportFragmentManager().beginTransaction().remove(scf).commit();
-        }
         if (i == 1) // confirm was pressed
         {
             // Set up the AsyncTask to save image to internal storage and then remove the confirm fragment
@@ -192,9 +193,9 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             SaveImageAsync saveImage = new SaveImageAsync(this);
             saveImage.execute();
             sdbman.insertSnapshot(currentSnapshot);
-            getSupportFragmentManager().beginTransaction().remove(scf).commit();
-            getContentResolver().delete(imgUri, null, null);
-        }
+        } // if Go Back was pressed, only the following lines will be executed
+        getSupportFragmentManager().beginTransaction().remove(scf).commit();
+        getContentResolver().delete(imgUri, null, null);
     }
 
     @Override // from MontageOptionsFragment
@@ -207,16 +208,8 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         {
             mf.setMediaPlayer(getApplicationContext(), musicUri);
         }
-        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mf).commit();
-    }
-
-    // from MontageFragment
-    public void removeMontageFrag()
-    {
-        if (mf != null)
-        {
-            getSupportFragmentManager().beginTransaction().remove(mf).commit();
-        }
+        mof.resetChecks();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mf).addToBackStack(null).commit();
     }
 
     @Override // from SettingsFragment
@@ -254,7 +247,9 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
             }
             sdbman.deleteAll();
             Toast.makeText(getApplicationContext(), "All images and data removed", Toast.LENGTH_SHORT).show();
+            setLastPhotoText();
         }
+        onBackPressed();
         onBackPressed();
     }
 
@@ -300,7 +295,38 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         return null;
     }
 
-    // Start, Resume, Pause, Destroy, Permission Request methods *****************************
+    public boolean hasPictureForToday(String lastDate)
+    {
+        String currentDate = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                .format(Calendar.getInstance().getTime());
+        return (lastDate.substring(0, 8).equals(currentDate.substring(0, 8)));
+    }
+
+    public void setLastPhotoText()
+    {
+        if (!sdbman.getAllRecords().isEmpty())
+        {
+            ArrayList<Snapshot> list = sdbman.getAllRecords();
+            Snapshot snap = list.get(list.size() - 1);
+            if (hasPictureForToday(snap.getPhotoName()))
+            {
+                String date = snap.getPhotoName().substring(4, 6) + "/"
+                        + snap.getPhotoName().substring(6, 8) + "/"
+                        + snap.getPhotoName().substring(2, 4);
+                lastPhoto.setText("You have a photo for today, " + date + "!");
+            }
+            else
+            {
+                lastPhoto.setText("You don't have a photo for today, remember to take a picture!");
+            }
+        }
+        else
+        {
+            lastPhoto.setText("You don't have a photo for today, remember to take a picture!");
+        }
+    }
+
+    // Start, Resume, Pause, Destroy, Permission Request, and onBackPressed methods *****************************
     @Override
     protected void onStart()
     {
@@ -316,6 +342,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         super.onResume();
         sdbman.open();
+        setLastPhotoText();
     }
 
     @Override
@@ -342,5 +369,25 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
         super.onDestroy();
         gpsManager.unregister();
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+        if (mf != null)
+        {
+            if (mf.mPlayer != null && mf.mPlayer.isPlaying())
+            {
+                mf.mPlayer.stop();
+                mf.mPlayer = null;
+            }
+            if (mf.montageAsync != null && mf.montageAsync.getStatus() == AsyncTask.Status.RUNNING)
+            {
+                mf.montageAsync.cancel(true);
+            }
+            mf = null;
+        }
+    }
+
     // ************************************************************************
 }
