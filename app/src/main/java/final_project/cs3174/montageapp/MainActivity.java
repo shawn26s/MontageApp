@@ -41,7 +41,8 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SnapshotConfirmFragment.OnFragmentInteractionListener,
         MontageOptionsFragment.OnFragmentInteractionListener, MontageFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener, ConfirmDeleteFragment.OnFragmentInteractionListener
+        SettingsFragment.OnFragmentInteractionListener, ConfirmDeleteFragment.OnFragmentInteractionListener,
+        MoodFragment.OnFragmentInteractionListener
 {
     Button takePicture;
     Button viewMontage;
@@ -227,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     @Override
     public MainActivity setMainActivity()
     {
+        return this;
+    }
+
+    @Override
+    public MainActivity getMoodMainActivity() {
         return this;
     }
 
