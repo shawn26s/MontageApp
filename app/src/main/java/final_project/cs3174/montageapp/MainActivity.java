@@ -41,7 +41,8 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SnapshotConfirmFragment.OnFragmentInteractionListener,
         MontageOptionsFragment.OnFragmentInteractionListener, MontageFragment.OnFragmentInteractionListener,
-        SettingsFragment.OnFragmentInteractionListener, ConfirmDeleteFragment.OnFragmentInteractionListener
+        SettingsFragment.OnFragmentInteractionListener, ConfirmDeleteFragment.OnFragmentInteractionListener,
+        MoodFragment.OnFragmentInteractionListener
 {
     Button takePicture;
     Button viewMontage;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     SnapshotDatabaseManager sdbman;
     SettingsFragment sf;
     ConfirmDeleteFragment cdf;
+    MoodFragment mdf;
     SharedPreferences sharedPref;
     boolean recordLocation;
 
@@ -139,6 +141,11 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     {
         mof = new MontageOptionsFragment();
         getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mof).addToBackStack(null).commit();
+    }
+
+    public void onViewMoodGraph(View view) {
+        mdf = new MoodFragment();
+        getSupportFragmentManager().beginTransaction().replace(mainFrame.getId(), mdf).addToBackStack(null).commit();
     }
 
     public void onClickSettings(View view)
@@ -221,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements SnapshotConfirmFr
     @Override
     public MainActivity setMainActivity()
     {
+        return this;
+    }
+
+    @Override
+    public MainActivity getMoodMainActivity() {
         return this;
     }
 
